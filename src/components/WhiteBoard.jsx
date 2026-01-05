@@ -2,12 +2,16 @@ import { useEffect, useRef, useState } from "react"
 
 export default function WhiteBoard({ data, onChange, onClose }) {
   const canvasRef = useRef(null)
-  const boardRef = useRef(null)
+
+  // Board position (movable)
+  const [pos, setPos] = useState({ x: 100, y: 80 })
+  const [draggingBoard, setDraggingBoard] = useState(false)
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
 
   const [drawing, setDrawing] = useState(false)
   const [texts, setTexts] = useState(data?.texts || [])
 
-  /* ================= CANVAS SETUP (FIX) ================= */
+  /* ================= CANVAS SETUP ================= */
   useEffect(() => {
     const canvas = canvasRef.current
     const container = canvas.parentElement
@@ -24,24 +28,49 @@ export default function WhiteBoard({ data, onChange, onClose }) {
       const ctx = canvas.getContext("2d")
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.lineCap = "round"
-      ctx.lineJoin = "round"
     }
 
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
-
     return () => window.removeEventListener("resize", resizeCanvas)
   }, [])
 
-  /* ================= SAVE STATE ================= */
+  /* ================= SAVE STATE PER SLIDE ================= */
   useEffect(() => {
     onChange?.({ texts })
   }, [texts])
 
+  /* ================= BOARD DRAG ================= */
+  const startBoardDrag = e => {
+    setDraggingBoard(true)
+    setOffset({
+      x: e.clientX - pos.x,
+      y: e.clientY - pos.y
+    })
+  }
+
+  const onBoardMove = e => {
+    if (!draggingBoard) return
+    setPos({
+      x: e.clientX - offset.x,
+      y: e.clientY - offset.y
+    })
+  }
+
+  const stopBoardDrag = () => setDraggingBoard(false)
+
+  useEffect(() => {
+    window.addEventListener("mousemove", onBoardMove)
+    window.addEventListener("mouseup", stopBoardDrag)
+    return () => {
+      window.removeEventListener("mousemove", onBoardMove)
+      window.removeEventListener("mouseup", stopBoardDrag)
+    }
+  })
+
   /* ================= DRAWING ================= */
   const getPos = e => {
-    const canvas = canvasRef.current
-    const rect = canvas.getBoundingClientRect()
+    const rect = canvasRef.current.getBoundingClientRect()
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
@@ -97,25 +126,29 @@ export default function WhiteBoard({ data, onChange, onClose }) {
     setTexts(prev => prev.filter(t => t.id !== id))
   }
 
+  /* ================= 🔥 CLEAR ALL (RESTORED) ================= */
   const clearBoard = () => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext("2d")
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    setTexts([])
+    setTexts([]) // remove all text boxes
   }
 
   return (
-    <div className="whiteboard" ref={boardRef}>
-      {/* HEADER */}
-      <div className="board-header">
+    <div
+      className="whiteboard"
+      style={{ left: pos.x, top: pos.y }}
+    >
+      {/* HEADER (DRAG HANDLE) */}
+      <div className="board-header" onMouseDown={startBoardDrag}>
         <span>🧾 White Board</span>
-        <button onClick={onClose}>❌</button>
+        <button onClick={onClose} style={{ cursor: "pointer" }}>❌</button>
       </div>
 
       {/* TOOLS */}
       <div className="board-tools">
         <button onClick={addText}>🅣 Add Text</button>
-        <button onClick={clearBoard}>🧹 Clear</button>
+        <button onClick={clearBoard}>🧹 Clear All</button>
       </div>
 
       {/* BOARD AREA */}
@@ -186,7 +219,10 @@ function TextBox({ box, onMove, onChange, onDelete }) {
     >
       <div className="text-header">
         Text
-        <button className="delete-btn" onClick={() => onDelete(box.id)}>
+        <button
+          className="delete-btn"
+          onClick={() => onDelete(box.id)}
+        >
           ❌
         </button>
       </div>

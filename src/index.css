@@ -125,8 +125,6 @@ body {
 
 .whiteboard {
   position: fixed;
-  top: 80px;
-  left: 100px;
   width: 50vw;
   height: 50vh;
   background: white;
@@ -135,6 +133,7 @@ body {
   box-shadow: 0 0 25px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;
+  cursor : pointer
 }
 
 .board-header {
@@ -271,11 +270,12 @@ body {
 }
 
 .delete-btn {
-  background: none;
+  background: white;
   border: none;
   cursor: pointer;
   font-size: 14px;
-  float: right;
+  position: relative;
+  left: 215px;
 }
 
 .delete-btn:hover {
