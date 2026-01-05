@@ -11,7 +11,7 @@ import WhiteBoard from "./WhiteBoard"
 export default function Book() {
   const [current, setCurrent] = useState(0)
   const [showBoard, setShowBoard] = useState(false)
-  const [pencilEnabled, setPencilEnabled] = useState(true)
+  const [tool, setTool] = useState(null) // null | pencil | laser
 
   const drawRef = useRef(null)
 
@@ -35,14 +35,15 @@ export default function Book() {
     return () => window.removeEventListener("keydown", handleKey)
   }, [current, showBoard])
 
+  // Toggle logic
+  const toggleTool = selectedTool => {
+    setTool(prev => (prev === selectedTool ? null : selectedTool))
+  }
+
   return (
     <div className="book-layout">
       {/* SIDEBAR */}
-      <Sidebar
-        slides={slides}
-        current={current}
-        goTo={setCurrent}
-      />
+      <Sidebar slides={slides} current={current} goTo={setCurrent} />
 
       {/* MAIN BOOK */}
       <div className="book">
@@ -59,12 +60,21 @@ export default function Book() {
       {/* TOOLBAR */}
       <div className="toolbar">
         <button
-          onClick={() => setPencilEnabled(p => !p)}
+          onClick={() => toggleTool("pencil")}
           style={{
-            background: pencilEnabled ? "#22c55e" : "#38bdf8"
+            background: tool === "pencil" ? "#22c55e" : "#38bdf8"
           }}
         >
           ✏ Pencil
+        </button>
+
+        <button
+          onClick={() => toggleTool("laser")}
+          style={{
+            background: tool === "laser" ? "#ef4444" : "#38bdf8"
+          }}
+        >
+          🔴 Laser
         </button>
 
         <button onClick={() => setShowBoard(true)}>
@@ -76,8 +86,8 @@ export default function Book() {
         </button>
       </div>
 
-      {/* GLOBAL DRAWING */}
-      {pencilEnabled && <DrawLayer ref={drawRef} />}
+      {/* DRAW / LASER LAYER */}
+      <DrawLayer ref={drawRef} tool={tool} />
 
       {/* WHITE BOARD */}
       {showBoard && (

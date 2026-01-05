@@ -244,6 +244,23 @@ body {
   top: 0;
   left: 0;
   z-index: 900;
-  cursor: crosshair;
+  pointer-events: none;
+  cursor: default;
 }
 
+/* LASER POINTER */
+.laser-dot {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: red;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1100;
+  box-shadow: 0 0 12px 4px rgba(255, 0, 0, 0.8);
+}
+
+.draw-layer.active {
+  pointer-events: auto; 
+  cursor: crosshair; /* 👈 pencil / laser ON */
+}
