@@ -155,7 +155,7 @@ Custom drag logic
 
 🖥️ How to Run the Project
 1️⃣ Clone the Repository
-git clone https://github.com/your-username/react-book.git
+git clone https://github.com/HuzaifaAnsari07/react-book.git
 
 2️⃣ Install Dependencies
 npm install
@@ -206,7 +206,7 @@ Multi-user collaboration
 👨‍💻 Author
 
 Ansari Huzaifa
-First Year CSE (AIML) Student
+Second Year CSE (AIML) Student
 Passionate about React, UI/UX, and Interactive Learning Tools
 
 ⭐ Final Note
