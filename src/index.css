@@ -1,0 +1,249 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.book-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: #020617;
+  border-right: 1px solid #1e293b;
+  padding: 1rem;
+}
+
+.sidebar h2 {
+  color: #38bdf8;
+  margin-bottom: 1rem;
+}
+
+.sidebar button {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem;
+  margin-bottom: 0.4rem;
+  background: none;
+  border: none;
+  color: #cbd5f5;
+  cursor: pointer;
+}
+
+.sidebar button.active {
+  background: #38bdf8;
+  color: black;
+  border-radius: 6px;
+}
+
+.book {
+  flex: 1;
+  padding: 2rem;
+}
+
+.slide h1 {
+  color: #38bdf8;
+}
+
+.slide pre {
+  white-space: pre-wrap;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.nav button {
+  background: #38bdf8;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.progress-container {
+  height: 6px;
+  background: #1e293b;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.progress {
+  height: 100%;
+  background: #38bdf8;
+  border-radius: 10px;
+}
+
+.draw-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  cursor: crosshair;
+}
+
+.toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: #020617;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbar button {
+  background: #38bdf8;
+  border: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.clear-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+}
+
+.whiteboard {
+  position: fixed;
+  top: 80px;
+  left: 100px;
+  width: 50vw;
+  height: 50vh;
+  background: white;
+  z-index: 1200;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.board-header {
+  background: #0f172a;
+  color: white;
+  padding: 0.5rem;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+}
+
+.board-tools {
+  padding: 0.4rem;
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.board-tools button {
+  padding: 0.3rem 0.6rem;
+  border: none;
+  background: #38bdf8;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.board-canvas {
+  flex: 1;
+  cursor: crosshair;
+}
+
+.board-area {
+  position: relative;
+  flex: 1;
+}
+
+.text-box {
+  position: absolute;
+  min-width: 80px;
+  min-height: 20px;
+  padding: 4px;
+  cursor: move;
+  background: transparent;
+  border: 1px dashed #999;
+  outline: none;
+  font-size: 14px;
+}
+
+/* GLOBAL DRAW LAYER */
+.draw-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  cursor: crosshair;
+}
+
+/* WHITEBOARD TEXT */
+.text-box {
+  position: absolute;
+  min-width: 80px;
+  min-height: 20px;
+  padding: 4px;
+  cursor: move;
+  background: transparent;
+  border: 1px dashed #999;
+  outline: none;
+  font-size: 14px;
+  color: black;   /* ✅ TEXT COLOR FIX */
+}
+
+.text-dialog {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 300px;
+  height: 150px;
+  background: white;
+  border: 2px solid #38bdf8;
+  border-radius: 6px;
+  resize: both;
+  overflow: hidden;
+  z-index: 1300;
+}
+
+.text-header {
+  background: #38bdf8;
+  color: black;
+  padding: 4px;
+  cursor: move;
+  font-weight: bold;
+}
+
+/* EDITABLE CONTENT */
+.text-content {
+  padding: 6px;
+  height: calc(100% - 28px);
+  overflow: auto;
+  outline: none;
+  font-size: 14px;
+  color: black;
+}
+
+
+.draw-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  cursor: crosshair;
+}
+
