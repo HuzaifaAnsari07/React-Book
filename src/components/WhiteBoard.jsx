@@ -3,20 +3,20 @@ import { useEffect, useRef, useState } from "react"
 export default function WhiteBoard({ onClose }) {
   const canvasRef = useRef(null)
   const boardRef = useRef(null)
-  const textRef = useRef(null)
 
   const [drawing, setDrawing] = useState(false)
   const [mode, setMode] = useState("draw") // draw | text
-  const [showTextBox, setShowTextBox] = useState(false)
+  const [textBoxes, setTextBoxes] = useState([])
+  const textCounter = useRef(0) // 🔥 keeps track of how many boxes created
 
-  // ---------- CANVAS SETUP ----------
+  /* ========== CANVAS SETUP ========== */
   useEffect(() => {
     const canvas = canvasRef.current
     canvas.width = canvas.offsetWidth
     canvas.height = canvas.offsetHeight
   }, [])
 
-  // ---------- DRAWING ----------
+  /* ========== DRAWING ========== */
   const startDraw = e => {
     if (mode !== "draw") return
     setDrawing(true)
@@ -36,31 +36,65 @@ export default function WhiteBoard({ onClose }) {
 
   const stopDraw = () => setDrawing(false)
 
+  /* ========== ADD TEXT BOX ========== */
+  const addTextBox = () => {
+    const offset = textCounter.current * 20
+
+    setTextBoxes(prev => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        x: 80 + offset,
+        y: 80 + offset,
+        content: "Type here..."
+      }
+    ])
+
+    textCounter.current += 1
+  }
+
+  const updateText = (id, value) => {
+    setTextBoxes(prev =>
+      prev.map(box =>
+        box.id === id ? { ...box, content: value } : box
+      )
+    )
+  }
+
+  const moveTextBox = (id, x, y) => {
+    setTextBoxes(prev =>
+      prev.map(box =>
+        box.id === id ? { ...box, x, y } : box
+      )
+    )
+  }
+
   const clearBoard = () => {
     const ctx = canvasRef.current.getContext("2d")
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-    setShowTextBox(false)
+    setTextBoxes([])
+    textCounter.current = 0
   }
 
-  // ---------- DRAG WHOLE BOARD ----------
+  /* ========== DRAG WHOLE BOARD ========== */
   useEffect(() => {
     const board = boardRef.current
     const header = board.querySelector(".board-header")
 
     let dragging = false
-    let offsetX = 0
-    let offsetY = 0
+    let ox = 0
+    let oy = 0
 
     const down = e => {
       dragging = true
-      offsetX = e.clientX - board.offsetLeft
-      offsetY = e.clientY - board.offsetTop
+      ox = e.clientX - board.offsetLeft
+      oy = e.clientY - board.offsetTop
     }
 
     const move = e => {
       if (!dragging) return
-      board.style.left = e.clientX - offsetX + "px"
-      board.style.top = e.clientY - offsetY + "px"
+      board.style.left = e.clientX - ox + "px"
+      board.style.top = e.clientY - oy + "px"
     }
 
     const up = () => (dragging = false)
@@ -75,66 +109,29 @@ export default function WhiteBoard({ onClose }) {
     }
   }, [])
 
-  // ---------- DRAG TEXT BOX ----------
-  useEffect(() => {
-    if (!showTextBox) return
-
-    const box = textRef.current
-    const header = box.querySelector(".text-header")
-
-    let dragging = false
-    let offsetX = 0
-    let offsetY = 0
-
-    const down = e => {
-      dragging = true
-      offsetX = e.clientX - box.offsetLeft
-      offsetY = e.clientY - box.offsetTop
-    }
-
-    const move = e => {
-      if (!dragging) return
-      box.style.left = e.clientX - offsetX + "px"
-      box.style.top = e.clientY - offsetY + "px"
-    }
-
-    const up = () => (dragging = false)
-
-    header.addEventListener("mousedown", down)
-    window.addEventListener("mousemove", move)
-    window.addEventListener("mouseup", up)
-
-    return () => {
-      window.removeEventListener("mousemove", move)
-      window.removeEventListener("mouseup", up)
-    }
-  }, [showTextBox])
-
   return (
     <div className="whiteboard" ref={boardRef}>
-      {/* ---------- HEADER ---------- */}
+      {/* HEADER */}
       <div className="board-header">
         <span>🧾 White Board</span>
         <button onClick={onClose}>❌</button>
       </div>
 
-      {/* ---------- TOOLS ---------- */}
+      {/* TOOLS */}
       <div className="board-tools">
         <button onClick={() => setMode("draw")}>✏ Draw</button>
-
         <button
           onClick={() => {
             setMode("text")
-            setShowTextBox(true)
+            addTextBox()
           }}
         >
           🅣 Add Text
         </button>
-
         <button onClick={clearBoard}>🧹 Clear</button>
       </div>
 
-      {/* ---------- BOARD AREA ---------- */}
+      {/* BOARD AREA */}
       <div className="board-area">
         <canvas
           ref={canvasRef}
@@ -144,24 +141,69 @@ export default function WhiteBoard({ onClose }) {
           onMouseUp={stopDraw}
         />
 
-        {/* ---------- TEXT DIALOG ---------- */}
-        {showTextBox && (
-          <div
-            ref={textRef}
-            className="text-dialog"
-            onKeyDown={e => e.stopPropagation()} // 🔥 Prevent slide change
-          >
-            <div className="text-header">Text Note</div>
+        {/* MULTIPLE TEXT BOXES */}
+        {textBoxes.map(box => (
+          <TextBox
+            key={box.id}
+            box={box}
+            onMove={moveTextBox}
+            onChange={updateText}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
-            <div
-              className="text-content"
-              contentEditable
-              suppressContentEditableWarning
-            >
-              Type here...
-            </div>
-          </div>
-        )}
+/* ========== TEXT BOX COMPONENT ========== */
+function TextBox({ box, onMove, onChange }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const el = ref.current
+    let dragging = false
+    let ox = 0
+    let oy = 0
+
+    const down = e => {
+      dragging = true
+      ox = e.clientX - el.offsetLeft
+      oy = e.clientY - el.offsetTop
+      e.stopPropagation()
+    }
+
+    const move = e => {
+      if (!dragging) return
+      onMove(box.id, e.clientX - ox, e.clientY - oy)
+    }
+
+    const up = () => (dragging = false)
+
+    el.querySelector(".text-header").addEventListener("mousedown", down)
+    window.addEventListener("mousemove", move)
+    window.addEventListener("mouseup", up)
+
+    return () => {
+      window.removeEventListener("mousemove", move)
+      window.removeEventListener("mouseup", up)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className="text-dialog"
+      style={{ left: box.x, top: box.y }}
+      onKeyDown={e => e.stopPropagation()} // prevent slide navigation
+    >
+      <div className="text-header">Text</div>
+      <div
+        className="text-content"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={e => onChange(box.id, e.currentTarget.innerText)}
+      >
+        {box.content}
       </div>
     </div>
   )
