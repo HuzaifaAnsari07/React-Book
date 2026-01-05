@@ -162,13 +162,17 @@ body {
 }
 
 .board-canvas {
-  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
   cursor: crosshair;
 }
 
 .board-area {
   position: relative;
   flex: 1;
+  width: 100%;
+  height: 100%;
 }
 
 .text-box {
@@ -223,9 +227,10 @@ body {
 .text-header {
   background: #38bdf8;
   color: black;
-  padding: 4px;
+  padding: 6px 32px 6px 8px; /* space for delete button */
   cursor: move;
   font-weight: bold;
+  position: relative; 
 }
 
 /* EDITABLE CONTENT */
@@ -263,4 +268,16 @@ body {
 .draw-layer.active {
   pointer-events: auto; 
   cursor: crosshair; /* 👈 pencil / laser ON */
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  float: right;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
 }
